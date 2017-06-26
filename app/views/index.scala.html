@@ -1,0 +1,23 @@
+@(tasks: List[Task], taskForm: Form[models.Task])(implicit messages: Messages)
+
+@import helper._
+
+@main("Todo List") {
+
+	<h1> @tasks.size task(s) </h1>
+
+	<ul>
+		@tasks.map { task =>
+			<li>
+				@task.label
+			</li>
+		}
+	</ul>
+
+	<h2> Add new Task </h2>
+	@form(routes.HomeController.newTask){
+		@inputText(taskForm("label"))
+		<input type="submit" value = "Create">
+	}
+
+}
