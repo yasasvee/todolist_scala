@@ -9,7 +9,21 @@
 	<ul>
 		@tasks.map { task =>
 			<li>
-				@task.label
+				@task.label<br/>
+				@task.description
+				@form(routes.HomeController.deleteTask(task.id.get.stringify)){
+					<input type="submit" value = "Delete">
+				}
+				@form(routes.HomeController.markTaskActive(task.id.get.stringify)){
+					<input type="submit" value = "Mark Active">
+				}
+				@form(routes.HomeController.markTaskDone(task.id.get.stringify)){
+					<input type="submit" value = "Mark Done">
+				}
+				@form(routes.HomeController.markTaskDisabled(task.id.get.stringify)){
+					<input type="submit" value = "Mark Disabled">
+				}
+				<br>
 			</li>
 		}
 	</ul>
@@ -17,6 +31,7 @@
 	<h2> Add new Task </h2>
 	@form(routes.HomeController.newTask){
 		@inputText(taskForm("label"))
+		@inputText(taskForm("description"))
 		<input type="submit" value = "Create">
 	}
 

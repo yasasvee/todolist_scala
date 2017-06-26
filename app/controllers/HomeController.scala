@@ -1,87 +1,108 @@
 package controllers
 
-import play.api.Play.current
-import play.api.i18n.Messages.Implicits._
 import models.Task
-import play.api._
 import play.api.mvc._
-import play.api.data._
-import play.api.data.Forms._
 import reactivemongo.bson._
 import reactivemongo.bson.BSONObjectID
-import reactivemongo.play.json._, collection._
 import play.modules.reactivemongo._
 import javax.inject._
-import reactivemongo.api.collections.bson
 import reactivemongo.api.collections.bson.BSONCollection
 import play.api.Play.current
 import reactivemongo.api.Cursor
-import reactivemongo.api.ReadPreference
 
+//i18n Error
+import play.api.i18n.Messages.Implicits._
+
+//Cannot find implicit execution context
 import scala.concurrent._
+import reactivemongo.api.ReadPreference
 import ExecutionContext.Implicits.global
-import models._
-import reactivemongo.core.commands.GetLastError
 import scala.util.{ Failure, Success }
+import reactivemongo.api.commands.FindAndModifyCommand
+//import collection.BatchCommands.FindAndModifyCommand.FindAndModifyResult
+//import reactivemongo.api.collections.bson.BSONCollection.FindAndModifyResult
+ //type mismatch;
+ //found   : scala.util.Try[reactivemongo.bson.BSONObjectID]
+ //required: reactivemongo.bson.BSONObjectID
 import scala.util.Try
 
-//import scala.concurrent.{ ExecutionContext, Future }
-//import reactivemongo.api.ReadPreference
-//import reactivemongo.play.json._, collection._
-
+//As of Play 2.4 and above directly inheriting MongoController is not supported, need to inject as below
+//Inject is just flagging or declaring a dependancy
 class HomeController @Inject() (val reactiveMongoApi: ReactiveMongoApi)
     extends Controller with MongoController with ReactiveMongoComponents {
 
+//Data is inserted/read from DB using collw=ections BSON->Binary JSON
   def collection: BSONCollection = db.collection[BSONCollection]("tasks")
-  //db.collection[JSONCollection]("tasks")
-
-  /**
-   * Create an Action to render an HTML page with a welcome message.
-   * The configuration in the `routes` file means that this method
-   * will be called when the application receives a `GET` request with
-   * a path of `/`.
-   */
+  
  /* def index = Action {
     Ok(views.html.index("Your new application is ready."))
   }
 */
   def index = Action {
-  	Ok("Hello World")
+  	Ok("Please Navigate to /tasks to add TODO's")
   }
 
   def tasks = Action.async {
     import Task.TaskReader
+    println("Inside Tasks")
     val taskForm = Task.taskForm
-/*      val found = collection.find(BSONDocument()).cursor[Task]
-      found.toList.map {
-        tasks => Ok(views.html.index(tasks, taskForm))
-      }
-*/
-     val cursor: Cursor[Task] = collection.
-          find(BSONDocument()).
-          cursor[Task](ReadPreference.primary)
-
-        val futureTaskList: Future[List[Task]] = cursor.collect[List]()
-        
-        futureTaskList.map { tasks => Ok(views.html.index(tasks, taskForm)) }
-
+    val cursor: Cursor[Task] = collection.
+      find(BSONDocument()).
+      cursor[Task](ReadPreference.primary)
+    val futureTaskList: Future[List[Task]] = cursor.collect[List]()
+    //println("Redirecting to view")
+    futureTaskList.map { tasks => Ok(views.html.index(tasks, taskForm)) }
   	//Ok(views.html.index(Task.all(), taskForm))
   }
 
   def newTask = Action { implicit request =>
     import Task.TaskWriter
+    println("Inside newTask")
     val taskForm = Task.taskForm
   	taskForm.bindFromRequest.fold(
   		errors => BadRequest(views.html.index(Task.all(), errors)),
   		task => { 
-        println("Adding a task")
-        //Task.create(label)
-        val id = BSONObjectID.generate
-        collection.insert(new Task(Option(id), task.label))
-        Redirect(routes.HomeController.tasks)
+        	println("Adding a task")
+        	//Task.create(label)
+        	val id = BSONObjectID.generate
+        	collection.insert(new Task(Option(id), task.label, task.description, "", "" ,""))//Mark active button, bold tag/strikethrough, disable
+        	Redirect(routes.HomeController.tasks)
   		}
   	)
+    //Empty task name fix
+    Redirect(routes.HomeController.tasks)
   }
 
-  def deleteTask(id: Option[BSONObjectID]) = TODO
+  def deleteTask(id: String) = Action{ implicit request =>
+    println("Deleting the Task")
+    //To Make sure the task exists just in case
+    val maybeOID: Try[BSONObjectID] = BSONObjectID.parse(id)
+    if (maybeOID.isSuccess) {
+      val futureRemove = collection.remove(BSONDocument("id" -> BSONObjectID(id))).onComplete {
+        case Failure(e) => throw e
+        case Success(_) => println("successfully removed document")
+      }
+    }
+    Redirect(routes.HomeController.tasks)    
+  }
+
+  def markTaskActive(id: String) = Action{ implicit request =>
+  	println("Marking the Task Active")
+    import Task.TaskReader
+    val taskForm = Task.taskForm
+	val maybeOID: Try[BSONObjectID] = BSONObjectID.parse(id)
+	if(maybeOID.isSuccess){	
+		val selector = BSONDocument("id" -> BSONObjectID(id))
+		val mod = BSONDocument("$set" -> BSONDocument("markActive" -> "Active"))
+		val futureUpdate = collection.update(selector, mod, multi = true)
+		futureUpdate.onComplete {
+		  case Failure(e) => throw e
+		  case Success(_) => println("successfully updated document")
+	    Redirect(routes.HomeController.tasks)    
+		}
+	}
+	Redirect(routes.HomeController.tasks)	
+  }
+  def markTaskDone(id: String) = TODO
+  def markTaskDisabled(id: String) = TODO
 }
