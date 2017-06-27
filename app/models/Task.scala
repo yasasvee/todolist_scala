@@ -4,7 +4,7 @@ import play.api.data._
 import play.api.data.Forms._
 import reactivemongo.bson._
 
-case class Task (id: Option[BSONObjectID], label: String, description: String, markActive: String, markDone: String, markDisabled: String)
+case class Task (id: Option[BSONObjectID], label: String, description: String)
 
 object Task{
 		
@@ -12,22 +12,16 @@ object Task{
 		mapping(
 			"id" -> ignored[Option[BSONObjectID]](None),
 			"label" -> nonEmptyText,
-      "description" -> nonEmptyText,
-      "markActive" -> nonEmptyText,
-      "markDone" -> nonEmptyText,
-      "markDisabled" -> nonEmptyText)(Task.apply)(Task.unapply))	
+      "description" -> nonEmptyText)(Task.apply)(Task.unapply))	
 
-  def all(): List[Task] = Nil
+  //def all(): List[Task] = Nil
 
   implicit object TaskWriter extends BSONDocumentWriter[Task] {
     println("Writing tasks")
     def write(task: Task): BSONDocument = BSONDocument(
       "id" -> task.id.getOrElse(BSONObjectID.generate),
       "label" -> BSONString(task.label),
-      "description" -> BSONString(task.description),
-      "markActive" -> BSONString(task.markActive),
-      "markDone" -> BSONString(task.markDone),
-      "markDisabled" -> BSONString(task.markDisabled))
+      "description" -> BSONString(task.description))
   }
 
   implicit object TaskReader extends BSONDocumentReader[Task] {
@@ -36,10 +30,7 @@ object Task{
       Task(
         doc.getAs[BSONObjectID]("id"),
         doc.getAs[BSONString]("label").get.value,
-        doc.getAs[BSONString]("description").get.value,
-        doc.getAs[BSONString]("markActive").get.value,
-        doc.getAs[BSONString]("markDone").get.value,
-        doc.getAs[BSONString]("markDisabled").get.value)//TO fetch value as String from a BSON string
+        doc.getAs[BSONString]("description").get.value)
     }
   }  
 /*	val uri = "mongodb://localhost:27017/testdb"

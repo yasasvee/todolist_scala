@@ -50,22 +50,22 @@ class HomeController @Inject() (val reactiveMongoApi: ReactiveMongoApi)
       find(BSONDocument()).
       cursor[Task](ReadPreference.primary)
     val futureTaskList: Future[List[Task]] = cursor.collect[List]()
-    //println("Redirecting to view")
+
     futureTaskList.map { tasks => Ok(views.html.index(tasks, taskForm)) }
   	//Ok(views.html.index(Task.all(), taskForm))
   }
 
   def newTask = Action { implicit request =>
     import Task.TaskWriter
-    println("Inside newTask")
     val taskForm = Task.taskForm
+    println("Fecthed")
   	taskForm.bindFromRequest.fold(
-  		errors => BadRequest(views.html.index(Task.all(), errors)),
-  		task => { 
+	    errors => Redirect(routes.HomeController.tasks),
+ 		task => { 
         	println("Adding a task")
         	//Task.create(label)
         	val id = BSONObjectID.generate
-        	collection.insert(new Task(Option(id), task.label, task.description, "", "" ,""))//Mark active button, bold tag/strikethrough, disable
+        	collection.insert(new Task(Option(id), task.label, task.description))//Mark active button, bold tag/strikethrough, disable
         	Redirect(routes.HomeController.tasks)
   		}
   	)
