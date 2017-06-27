@@ -13,6 +13,7 @@ POST    /tasks/:id/delete       	controllers.HomeController.deleteTask(id: Strin
 POST    /tasks/:id/operation1     	controllers.HomeController.markTaskActive(id: String)
 POST    /tasks/:id/operation2     	controllers.HomeController.markTaskDone(id: String)
 POST    /tasks/:id/operation3   	controllers.HomeController.markTaskDisabled(id: String)
+POST    /tasks/:id/operation4   	controllers.HomeController.markTaskEnabled(id: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

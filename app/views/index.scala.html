@@ -9,20 +9,23 @@
 	<ul>
 		@tasks.map { task =>
 			<li>
-				@task.label<br/>
+				<@task.taskStatus>@task.label<@task.taskStatus><br/>
 				@task.description
 				<p>@form(routes.HomeController.deleteTask(task.id.get.stringify)){
-					<input type="submit" value = "Delete">
+					<input type="submit" value = "Delete" >
 				}
 				@form(routes.HomeController.markTaskActive(task.id.get.stringify)){
-					<input type="submit" value = "Mark Active">
+					<input type="submit" value = "Mark Active" @task.enableDisable>
 				}
 				@form(routes.HomeController.markTaskDone(task.id.get.stringify)){
-					<input type="submit" value = "Mark Done">
+					<input type="submit" value = "Mark Done" @task.enableDisable>
 				}
 				@form(routes.HomeController.markTaskDisabled(task.id.get.stringify)){
 					<input type="submit" value = "Mark Disabled">
-				}</p>
+				}
+				@form(routes.HomeController.markTaskEnabled(task.id.get.stringify)){
+					<input type="submit" value = "Mark Enabled">
+				}</p>				
 				<br>
 			</li>
 		}

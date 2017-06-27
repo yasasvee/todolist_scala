@@ -87,14 +87,14 @@ class HomeController @Inject() (val reactiveMongoApi: ReactiveMongoApi)
     Redirect(routes.HomeController.tasks)    
   }
 
-  def markTaskActive(id: String) = TODO/*Action{ implicit request =>
+  def markTaskActive(id: String) = Action{ implicit request =>
   	println("Marking the Task Active")
     import Task.TaskReader
     val taskForm = Task.taskForm
 	val maybeOID: Try[BSONObjectID] = BSONObjectID.parse(id)
 	if(maybeOID.isSuccess){	
 		val selector = BSONDocument("id" -> BSONObjectID(id))
-		val mod = BSONDocument("$set" -> BSONDocument("markActive" -> "Active"))
+		val mod = BSONDocument("$set" -> BSONDocument("taskStatus" -> "b"))
 		val futureUpdate = collection.update(selector, mod, multi = true)
 		futureUpdate.onComplete {
 		  case Failure(e) => throw e
@@ -103,7 +103,56 @@ class HomeController @Inject() (val reactiveMongoApi: ReactiveMongoApi)
 		}
 	}
 	Redirect(routes.HomeController.tasks)	
-  }*/
-  def markTaskDone(id: String) = TODO
-  def markTaskDisabled(id: String) = TODO
+  }
+  def markTaskDone(id: String) = Action{ implicit request =>
+  	println("Marking the Task Active")
+    import Task.TaskReader
+    val taskForm = Task.taskForm
+	val maybeOID: Try[BSONObjectID] = BSONObjectID.parse(id)
+	if(maybeOID.isSuccess){	
+		val selector = BSONDocument("id" -> BSONObjectID(id))
+		val mod = BSONDocument("$set" -> BSONDocument("taskStatus" -> "strike"))
+		val futureUpdate = collection.update(selector, mod, multi = true)
+		futureUpdate.onComplete {
+		  case Failure(e) => throw e
+		  case Success(_) => println("successfully updated document")
+	    Redirect(routes.HomeController.tasks)    
+		}
+	}
+	Redirect(routes.HomeController.tasks)	
+  }
+  def markTaskDisabled(id: String) = Action{ implicit request =>
+  	println("Marking the Task Active")
+    import Task.TaskReader
+    val taskForm = Task.taskForm
+	val maybeOID: Try[BSONObjectID] = BSONObjectID.parse(id)
+	if(maybeOID.isSuccess){	
+		val selector = BSONDocument("id" -> BSONObjectID(id))
+		val mod = BSONDocument("$set" -> BSONDocument("taskStatus"->"i", "enableDisable" -> "disabled"))
+		val futureUpdate = collection.update(selector, mod, multi = true)
+		futureUpdate.onComplete {
+		  case Failure(e) => throw e
+		  case Success(_) => println("successfully updated document")
+	    Redirect(routes.HomeController.tasks)    
+		}
+	}
+	Redirect(routes.HomeController.tasks)	
+  }
+  def markTaskEnabled(id: String) = Action{ implicit request =>
+  	println("Marking the Task Active")
+    import Task.TaskReader
+    val taskForm = Task.taskForm
+	val maybeOID: Try[BSONObjectID] = BSONObjectID.parse(id)
+	if(maybeOID.isSuccess){	
+		val selector = BSONDocument("id" -> BSONObjectID(id))
+		val mod = BSONDocument("$set" -> BSONDocument("enableDisable" -> "enabled"))
+		val futureUpdate = collection.update(selector, mod, multi = true)
+		futureUpdate.onComplete {
+		  case Failure(e) => throw e
+		  case Success(_) => println("successfully updated document")
+	    Redirect(routes.HomeController.tasks)    
+		}
+	}
+	Redirect(routes.HomeController.tasks)	
+  }  
 }
