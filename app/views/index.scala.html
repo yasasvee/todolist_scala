@@ -11,7 +11,7 @@
 			<li>
 				@task.label<br/>
 				@task.description
-				@form(routes.HomeController.deleteTask(task.id.get.stringify)){
+				<p>@form(routes.HomeController.deleteTask(task.id.get.stringify)){
 					<input type="submit" value = "Delete">
 				}
 				@form(routes.HomeController.markTaskActive(task.id.get.stringify)){
@@ -22,7 +22,7 @@
 				}
 				@form(routes.HomeController.markTaskDisabled(task.id.get.stringify)){
 					<input type="submit" value = "Mark Disabled">
-				}
+				}</p>
 				<br>
 			</li>
 		}
@@ -32,6 +32,14 @@
 	@form(routes.HomeController.newTask){
 		@inputText(taskForm("label"))
 		@inputText(taskForm("description"))
+		@inputRadioGroup(  
+		      taskForm("taskStatus"),
+		      options = Seq("b"->"Active","strike"->"Done"),
+		     '_label -> "Task Status")
+		@inputRadioGroup(  
+		      taskForm("enableDisable"),
+		      options = Seq("enabled"->"Enable","disabled"->"Disable"),
+		     '_label -> "Enable/Disable task")		     
 		<input type="submit" value = "Create">
 	}
 

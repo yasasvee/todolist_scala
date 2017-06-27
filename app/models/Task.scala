@@ -4,7 +4,7 @@ import play.api.data._
 import play.api.data.Forms._
 import reactivemongo.bson._
 
-case class Task (id: Option[BSONObjectID], label: String, description: String)
+case class Task (id: Option[BSONObjectID], label: String, description: String, taskStatus: String, enableDisable: String)
 
 object Task{
 		
@@ -12,7 +12,9 @@ object Task{
 		mapping(
 			"id" -> ignored[Option[BSONObjectID]](None),
 			"label" -> nonEmptyText,
-      "description" -> nonEmptyText)(Task.apply)(Task.unapply))	
+      "description" -> nonEmptyText,
+      "taskStatus" -> nonEmptyText,
+      "enableDisable" -> nonEmptyText)(Task.apply)(Task.unapply))	
 
   //def all(): List[Task] = Nil
 
@@ -21,7 +23,9 @@ object Task{
     def write(task: Task): BSONDocument = BSONDocument(
       "id" -> task.id.getOrElse(BSONObjectID.generate),
       "label" -> BSONString(task.label),
-      "description" -> BSONString(task.description))
+      "description" -> BSONString(task.description),
+      "taskStatus" -> BSONString(task.taskStatus),
+      "enableDisable" -> BSONString(task.enableDisable))
   }
 
   implicit object TaskReader extends BSONDocumentReader[Task] {
@@ -30,7 +34,9 @@ object Task{
       Task(
         doc.getAs[BSONObjectID]("id"),
         doc.getAs[BSONString]("label").get.value,
-        doc.getAs[BSONString]("description").get.value)
+        doc.getAs[BSONString]("description").get.value,
+        doc.getAs[BSONString]("taskStatus").get.value,
+        doc.getAs[BSONString]("enableDisable").get.value)
     }
   }  
 /*	val uri = "mongodb://localhost:27017/testdb"

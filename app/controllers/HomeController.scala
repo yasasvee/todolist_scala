@@ -55,17 +55,18 @@ class HomeController @Inject() (val reactiveMongoApi: ReactiveMongoApi)
   	//Ok(views.html.index(Task.all(), taskForm))
   }
 
+  def errorPage = TODO
   def newTask = Action { implicit request =>
     import Task.TaskWriter
     val taskForm = Task.taskForm
     println("Fecthed")
   	taskForm.bindFromRequest.fold(
-	    errors => Redirect(routes.HomeController.tasks),
+	    errors => Redirect(routes.HomeController.errorPage),
  		task => { 
         	println("Adding a task")
         	//Task.create(label)
         	val id = BSONObjectID.generate
-        	collection.insert(new Task(Option(id), task.label, task.description))//Mark active button, bold tag/strikethrough, disable
+        	collection.insert(new Task(Option(id), task.label, task.description, task.taskStatus, task.enableDisable))//Mark active button, bold tag/strikethrough, disable
         	Redirect(routes.HomeController.tasks)
   		}
   	)
@@ -86,7 +87,7 @@ class HomeController @Inject() (val reactiveMongoApi: ReactiveMongoApi)
     Redirect(routes.HomeController.tasks)    
   }
 
-  def markTaskActive(id: String) = Action{ implicit request =>
+  def markTaskActive(id: String) = TODO/*Action{ implicit request =>
   	println("Marking the Task Active")
     import Task.TaskReader
     val taskForm = Task.taskForm
@@ -102,7 +103,7 @@ class HomeController @Inject() (val reactiveMongoApi: ReactiveMongoApi)
 		}
 	}
 	Redirect(routes.HomeController.tasks)	
-  }
+  }*/
   def markTaskDone(id: String) = TODO
   def markTaskDisabled(id: String) = TODO
 }
