@@ -9,8 +9,8 @@
 	<ul>
 		@tasks.map { task =>
 			<li>
-				<@task.taskStatus>@task.label<@task.taskStatus><br/>
-				@task.description
+				<@task.taskStatus>@task.label</@task.taskStatus><br/>
+				<@task.taskStatus>@task.description</@task.taskStatus>
 				<p>@form(routes.HomeController.deleteTask(task.id.get.stringify)){
 					<input type="submit" value = "Delete" >
 				}
